@@ -1,4 +1,5 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -26,6 +27,15 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
           artUri: Uri.parse('https://i0.wp.com/justnaija.com/uploads/2023/11/Limoblaze-Over-artwork.jpeg')
         )
         ),
+       AudioSource.uri( 
+        Uri.parse('asset:///assets/audio/desire.mp3'),
+        tag: MediaItem(
+          id: '1',
+          title: 'desire',
+          artist: 'limoblaze',
+          artUri: Uri.parse('https://trendybeatz.com/images/Limoblaze-Sunday-In-Lagos-EPArtwork1.jpg')
+        )
+        ),
     ]
     );
 
@@ -45,8 +55,14 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
   @override
   void initState() {
     
-    _audioPlayer = AudioPlayer()..setAsset('assets/audio/over.mp3');
+    _audioPlayer = AudioPlayer();
+    _init();
     super.initState();
+  }
+
+  Future<void> _init() async {
+    await _audioPlayer.setLoopMode(LoopMode.all);
+    await _audioPlayer.setAudioSource(_playlist);
   }
 
   @override
@@ -86,6 +102,22 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            StreamBuilder<SequenceState?>(
+              stream: _audioPlayer.sequenceStateStream, 
+              builder: (context, snapshot) {
+                final sequenceState = snapshot.data;
+                if (sequenceState?.sequence.isEmpty ?? true) {
+                  return const SizedBox();
+                }
+                final metadata = sequenceState!.currentSource!.tag as MediaItem;
+                return MediaMetadata(
+                  title: metadata.title, 
+                  artist: metadata.artist ?? '', 
+                  albumArtUrl: metadata.artUri?.toString() ?? ''
+                  );
+              }
+              ),
+              const SizedBox(height: 20,),
             StreamBuilder(
               stream: _positionDataStream, 
               builder: (context, snapshot) {
@@ -120,4 +152,50 @@ class PositionData {
   PositionData(this.position, this.bufferedPosition, this.duration);
 }
 
+class MediaMetadata extends StatelessWidget{
+  final String title;
+  final String artist;
+  final String albumArtUrl;
+
+MediaMetadata({required this.title, required this.artist, required this.albumArtUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        DecoratedBox(
+              decoration: BoxDecoration(
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    offset: Offset(2, 4),
+                    blurRadius: 4,                  )
+                ],
+                borderRadius: BorderRadius.circular(10),
+                
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: CachedNetworkImage(
+                  imageUrl: albumArtUrl,
+                  height: 300,
+                  ),
+              ),
+              ),
+              const SizedBox(height: 20,),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)
+              ),
+              const SizedBox(height: 8,),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)
+              ),
+      ]
+    );
+  }
+}
 
