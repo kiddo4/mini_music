@@ -95,17 +95,22 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
         decoration: const BoxDecoration(
           gradient: 
           LinearGradient(
-            colors: [
-              Colors.red,
-              Colors.orange,
-              Colors.yellow,
-              Colors.green,
-              Colors.blue,
-              Colors.indigo,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          )
+                colors: [Colors.pink, Colors.pinkAccent],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+          // LinearGradient(
+          //   colors: [
+          //     Colors.red,
+          //     Colors.orange,
+          //     Colors.yellow,
+          //     Colors.green,
+          //     Colors.blue,
+          //     Colors.indigo,
+          //   ],
+          //   begin: Alignment.topLeft,
+          //   end: Alignment.bottomRight,
+          // )
 
           // LinearGradient(
           //   begin: Alignment.topCenter,
