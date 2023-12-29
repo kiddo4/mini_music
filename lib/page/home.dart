@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +15,7 @@ class AudioPlayerScreen extends StatefulWidget {
 
 class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
   late AudioPlayer _audioPlayer;
-  late AnimationController _controller;
+
   final _playlist = ConcatenatingAudioSource(
     children: [
       AudioSource.uri( 
@@ -55,10 +54,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
 
   @override
   void initState() {
-    _controller = AnimationController(
-      duration: Duration(seconds: 2),
-      vsync: ScaffoldState(),
-    )..repeat();
+    
     _audioPlayer = AudioPlayer();
     _init();
     super.initState();
@@ -72,13 +68,8 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
   @override
   void dispose() {
     _audioPlayer.dispose();
-    _controller.dispose();
     super.dispose();
   }
- 
-
-  
-    
 
 
   @override
@@ -97,90 +88,80 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
             icon: const Icon(Icons.more_horiz))
         ],
       ),
-      body: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-        return Container(
-          padding: const EdgeInsets.all(20.0),
-          height: double.infinity,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: 
-            LinearGradient(
-                  colors: [
-                    Colors.red,
-                    Colors.orange,
-                    Colors.yellow,
-                    Colors.green,
-                    Colors.blue,
-                    Colors.indigo,
-                    // Color,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  stops: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5],
-                  tileMode: TileMode.clamp,
-                  transform: GradientRotation(_controller.value * 2 * 3.141592),
-                )
-      
-            // LinearGradient(
-            //   begin: Alignment.topCenter,
-            //   end: Alignment.bottomCenter,
-            //   colors: [
-            //     Color(0xff2E305F),  Color.fromARGB(255, 103, 104, 153)]
-            // )
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              StreamBuilder<SequenceState?>(
-                stream: _audioPlayer.sequenceStateStream, 
-                builder: (context, snapshot) {
-                  final sequenceState = snapshot.data;
-                  if (sequenceState?.sequence.isEmpty ?? true) {
-                    return const SizedBox();
-                  }
-                  final metadata = sequenceState!.currentSource!.tag as MediaItem;
-                  return MediaMetadata(
-                    title: metadata.title, 
-                    artist: metadata.artist!, 
-                    albumArtUrl: metadata.artUri?.toString() ?? ''
-                    );
-                }
-                ),
-                const SizedBox(height: 20,),
-              StreamBuilder(
-                stream: _positionDataStream, 
-                builder: (context, snapshot) {
-                  final positionData = snapshot.data;
-                  return ProgressBar(
-                    barHeight: 8,
-                    baseBarColor: Colors.grey[600],
-                    bufferedBarColor: Colors.grey,
-                    progressBarColor: Colors.yellow,
-                    thumbColor: Colors.yellow,
-                    timeLabelTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                    progress: positionData?.position ?? Duration.zero,
-                    buffered: positionData?.bufferedPosition ?? Duration.zero,
-                    total: positionData?.duration ?? Duration.zero,
-                    onSeek: _audioPlayer.seek,
-                    );
-                }),
-              const SizedBox(height: 20,),
-              Controls(audioPlayer: _audioPlayer),
-              const SizedBox(height: 200,),
-              const Text(
-                'built with ❤️ by kiddo for kiddo',
-                style: TextStyle(color: Colors.white),
-                )
+      body: Container(
+        padding: const EdgeInsets.all(20.0),
+        height: double.infinity,
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: 
+          LinearGradient(
+            colors: [
+              Colors.red,
+              Colors.orange,
+              Colors.yellow,
+              Colors.green,
+              Colors.blue,
+              Colors.indigo,
             ],
-          ),
-        );     
-        }
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
+
+          // LinearGradient(
+          //   begin: Alignment.topCenter,
+          //   end: Alignment.bottomCenter,
+          //   colors: [
+          //     Color(0xff2E305F),  Color.fromARGB(255, 103, 104, 153)]
+          // )
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            StreamBuilder<SequenceState?>(
+              stream: _audioPlayer.sequenceStateStream, 
+              builder: (context, snapshot) {
+                final sequenceState = snapshot.data;
+                if (sequenceState?.sequence.isEmpty ?? true) {
+                  return const SizedBox();
+                }
+                final metadata = sequenceState!.currentSource!.tag as MediaItem;
+                return MediaMetadata(
+                  title: metadata.title, 
+                  artist: metadata.artist!, 
+                  albumArtUrl: metadata.artUri?.toString() ?? ''
+                  );
+              }
+              ),
+              const SizedBox(height: 20,),
+            StreamBuilder(
+              stream: _positionDataStream, 
+              builder: (context, snapshot) {
+                final positionData = snapshot.data;
+                return ProgressBar(
+                  barHeight: 8,
+                  baseBarColor: Colors.grey[600],
+                  bufferedBarColor: Colors.grey,
+                  progressBarColor: Colors.yellow,
+                  thumbColor: Colors.yellow,
+                  timeLabelTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  progress: positionData?.position ?? Duration.zero,
+                  buffered: positionData?.bufferedPosition ?? Duration.zero,
+                  total: positionData?.duration ?? Duration.zero,
+                  onSeek: _audioPlayer.seek,
+                  );
+              }),
+            const SizedBox(height: 20,),
+            Controls(audioPlayer: _audioPlayer),
+            const SizedBox(height: 200,),
+            const Text(
+              'built with ❤️ by kiddo for kiddo',
+              style: TextStyle(color: Colors.white),
+              )
+          ],
+        ),
       ),
     );
   }
-  
 }
 
 class PositionData {
